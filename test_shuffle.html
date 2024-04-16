@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Obfuscated HTML</title>
+    <script>
+        // Obfuscated HTML with key prepended
+        var obfuscated_html = "GAmwG061210000908010504020307131411ndVTLlnPTIwI71USZQiK7dVThdWTJlAI9d2ZX10S5V2TAdwELl3KakRKotXfThzIU4BNhUCOTRyKz4RGzg2ShwwEPcVCkMjJoUhQ91UeHIUfp9yBhtGKbEAJPknRF03Z9NFcvg2SMVyK1ghGMMDImUADxcmJX5BKnRjHFURe3sUThd2ZJAiIvgVULlnIbkBKi8ySn9XZpIxT8BSKWEQYroyAF0XT5tBASUFU1ICNFwQKkcmF18yZy0DGTQAOpA2e1610";
+
+        // Extract the key
+        var key = obfuscated_html.substring(0, 5); // Assuming the key length is 5
+        console.log("Extracted Key:", key);
+
+        // Extract the obfuscated content
+        var obfuscated_content = obfuscated_html.substring(5);
+        console.log("Extracted Obfuscated Content:", obfuscated_content);
+
+        // Extract chunk size from the end of the obfuscated content
+        var chunk_size = parseInt(obfuscated_content.slice(-2), 16); // Extract last two characters as hex
+        console.log("Chunk Size:", chunk_size);
+
+        // Remove chunk size from the obfuscated content
+        var obfuscated_content = obfuscated_content.slice(0, -2);
+
+        // Remove last chunk from the obfuscated content
+        var last_chunk_size = parseInt(obfuscated_content.slice(-2));
+        console.log("last chunk Size:", last_chunk_size);
+        var obfuscated_content = obfuscated_content.slice(0, -2);
+
+        // Store last chunk and remove it
+        var last_chunk = obfuscated_content.slice(-last_chunk_size);
+        console.log("Last chunk value:", last_chunk);
+
+        // Remove last chunk from the obfuscated content
+        obfuscated_content = obfuscated_content.slice(0, -last_chunk_size);
+
+        // Extract the shuffle order from the beginning of the obfuscated content
+        var shuffle_order_str = obfuscated_content.match(/^\d+/)[0];
+        var shuffle_order = [];
+        for (var i = 0; i < shuffle_order_str.length; i += 2) {
+            shuffle_order.push(parseInt(shuffle_order_str.slice(i, i + 2)));
+        }
+        console.log("Shuffle Order:", shuffle_order);
+
+        // Remove the shuffle order from the obfuscated content
+        var obfuscated_content = obfuscated_content.substring(shuffle_order_str.length);
+        console.log("Remaining Obfuscated Content:", obfuscated_content);
+
+
+        // Unshuffle chunks based on the extracted shuffle order
+        function unshuffleChunks(shuffled, order, chunkSize) {
+            var unshuffled = [];
+            for (var i = 0; i < order.length; i++) {
+                unshuffled[order[i]] = shuffled.slice(i * chunkSize, (i + 1) * chunkSize);
+            }
+            console.log("unshuffled? Array:", unshuffled);
+
+            var shuffledChunks = unshuffled.join('');
+            console.log("Reverse base64:", shuffledChunks);
+            return shuffledChunks;
+        }
+
+        // Unshuffle chunks
+        var unshuffled_base64 = unshuffleChunks(obfuscated_content, shuffle_order, chunk_size) + last_chunk;
+        var reverse_base64 = unshuffled_base64.split('').join('');
+        console.log("reverse_base64:", reverse_base64);
+
+        // Reverse Base64
+        var base64 = reverse_base64.split('').reverse().join('');
+        console.log("Base64:", base64);
+
+        // Base64 decoding
+        var decoded_html = atob(base64);
+        console.log("Decoded HTML:", decoded_html);
+
+        // XOR decryption
+        function xorDecrypt(text, key) {
+            var decrypted = '';
+            for (var i = 0; i < text.length; i++) {
+                decrypted += String.fromCharCode(text.charCodeAt(i) ^ key.charCodeAt(i % key.length));
+            }
+            return decrypted;
+        }
+
+        var decrypted_html = xorDecrypt(decoded_html, key);
+        console.log("Decrypted HTML:", decrypted_html);
+
+        // Display the decoded HTML
+        document.write(decrypted_html);
+    </script>
+</head>
+<body>
+</body>
+</html>
